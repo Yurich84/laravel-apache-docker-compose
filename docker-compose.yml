@@ -53,6 +53,9 @@ services:
     container_name: ${APP_NAME}-db
     restart: always
     environment:
+      MYSQL_DATABASE: default
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
       MYSQL_ROOT_PASSWORD: root
     ports:
     - 3306:3306

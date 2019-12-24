@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends apt-utils \
 	zip \
     nano
 
+RUN docker-php-ext-install pdo_mysql
+
 RUN chown -R www-data:www-data /var/www/html \
     && a2enmod rewrite
 
