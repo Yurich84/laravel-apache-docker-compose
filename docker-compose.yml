@@ -3,13 +3,49 @@ version: '3'
 services:
 
 #App
-  server:
+  app:
+    image: laravel-www
+    container_name: laravel-www
     build: docker
-    container_name: laravel
+    depends_on:
+      - redis
+      - db
+    ports:
+      - 8080:80
+    tty: true
     environment:
-      - APACHE_RUN_USER=www-data
+      APP_ENV: ${APP_ENV}
+      APP_PATH_CONTAINER: ${APP_PATH_CONTAINER}
+      CONTAINER_ROLE: app
     volumes:
-      - ${APP_PATH_HOST}:/application:cached
+      - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}:cached
+    working_dir: ${APP_PATH_CONTAINER}
+
+#Scheduler
+  scheduler:
+    image: laravel-www
+    container_name: laravel-scheduler
+    depends_on:
+      - app
+    volumes:
+      - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}:cached
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_PATH_CONTAINER: ${APP_PATH_CONTAINER}
+      CONTAINER_ROLE: scheduler
+
+#Queue
+  queue:
+    image: laravel-www
+    container_name: laravel-queue
+    depends_on:
+      - app
+    volumes:
+      - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}:cached
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_PATH_CONTAINER: ${APP_PATH_CONTAINER}
+      CONTAINER_ROLE: queue
 
 #DB
   db:
@@ -22,18 +58,6 @@ services:
     - 3306:3306
     volumes:
       - ${DB_PATH_HOST}:/var/lib/mysql:cached
-
-#WEB
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:cached
-      - ${APP_PATH_HOST}:/application:cached
-    depends_on:
-      - server
 
 #Redis
   redis:
