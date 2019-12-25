@@ -11,7 +11,7 @@ services:
       - redis
       - db
     ports:
-      - 8080:80
+      - ${WEB_PORT}:80
     tty: true
     environment:
       APP_ENV: ${APP_ENV}
@@ -47,8 +47,8 @@ services:
       APP_PATH_CONTAINER: ${APP_PATH_CONTAINER}
       CONTAINER_ROLE: queue
 
-#DB
-  db:
+#MYSQL
+  mysql:
     image: mariadb
     container_name: ${APP_NAME}-db
     restart: always

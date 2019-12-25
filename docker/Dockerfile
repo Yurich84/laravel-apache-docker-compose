@@ -3,6 +3,7 @@ LABEL maintainer="yurich84@gmail.com"
 
 COPY . /var/www/html
 COPY ./vhost.conf /etc/apache2/sites-available/000-default.conf
+COPY ./alias.conf /etc/apache2/mods-available/alias.conf
 COPY ./start.sh /usr/local/bin/start
 RUN chmod a+x /usr/local/bin/start
 
