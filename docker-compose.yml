@@ -1,0 +1,70 @@
+version: '3'
+
+services:
+
+#App
+  app:
+    image: laravel-www
+    container_name: ${APP_NAME}-www
+    build: docker
+    depends_on:
+      - redis
+      - mysql
+    ports:
+      - ${WEB_PORT}:80
+    tty: true
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_PATH_CONTAINER: ${APP_PATH_CONTAINER}
+      CONTAINER_ROLE: app
+    volumes:
+      - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}:cached
+    working_dir: ${APP_PATH_CONTAINER}
+
+#Scheduler
+  scheduler:
+    image: laravel-www
+    container_name: ${APP_NAME}-scheduler
+    depends_on:
+      - app
+    volumes:
+      - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}:cached
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_PATH_CONTAINER: ${APP_PATH_CONTAINER}
+      CONTAINER_ROLE: scheduler
+
+#Queue
+  queue:
+    image: laravel-www
+    container_name: ${APP_NAME}-queue
+    depends_on:
+      - app
+    volumes:
+      - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}:cached
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_PATH_CONTAINER: ${APP_PATH_CONTAINER}
+      CONTAINER_ROLE: queue
+
+#MYSQL
+  mysql:
+    image: mariadb
+    container_name: ${APP_NAME}-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: default
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+    - 3306:3306
+    volumes:
+      - ${DB_PATH_HOST}:/var/lib/mysql:cached
+
+#Redis
+  redis:
+    image: redis:alpine
+    container_name: ${APP_NAME}-redis
+    ports:
+      - "6379:6379"
